@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}Finais felizes{% endblock %}
+{% block descricao %}Conheça os cães que já foram adotados com a ajuda dos protetores.{% endblock %}
+
+{% block conteudo %}
+<section class="secao secao--topo" aria-labelledby="adotados-titulo">
+  <div class="container">
+    <header class="pagina-cabecalho">
+      <h1 id="adotados-titulo">Finais felizes</h1>
+      <p>Cada nome aqui é uma história que deu certo graças a adotantes responsáveis, lares temporários e doadores.</p>
+    </header>
+    {% if caes %}
+      <ul class="grade-adotados">
+        {% for cao in caes %}
+        <li class="adotado">
+          <img src="{{ cao.foto.url }}" alt="Foto de {{ cao.nome }}" loading="lazy" width="240" height="240">
+          <div>
+            <h2 class="adotado__nome">{{ cao.nome }}</h2>
+            <p class="adotado__data">Adotad{{ cao.artigo }} {% if cao.data_adocao %}em <time datetime="{{ cao.data_adocao|date:'Y-m-d' }}">{{ cao.data_adocao|date:"F \d\e Y" }}</time>{% endif %}</p>
+          </div>
+        </li>
+        {% endfor %}
+      </ul>
+      {% include "partials/_paginacao.html" %}
+    {% else %}
+      <p class="vazio">As primeiras adoções aparecerão aqui.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

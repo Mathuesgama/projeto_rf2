@@ -1,0 +1,19 @@
+# Ambiente
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Dados locais
+db.sqlite3
+media/
+staticfiles/
+
+# Documentos do relatório (entregue separadamente em PDF)
+docs/
+
+# Editores / SO
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store

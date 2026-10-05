@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block titulo %}Gerenciar {{ cao.nome }}{% endblock %}
+{% block body_class %}area-interna{% endblock %}
+
+{% block conteudo %}
+<section class="secao secao--topo" aria-labelledby="gerenciar-titulo">
+  <div class="container">
+    <nav class="trilha" aria-label="Trilha de navegação">
+      <ol>
+        <li><a href="{% url 'animais:painel' %}">Painel</a></li>
+        <li aria-current="page">{{ cao.nome }}</li>
+      </ol>
+    </nav>
+
+    <header class="ficha-topo">
+      <img src="{{ cao.foto.url }}" alt="Foto de {{ cao.nome }}" width="120" height="120">
+      <div>
+        <span class="badge badge--{{ cao.status }}">{{ cao.get_status_display }}</span>
+        <h1 id="gerenciar-titulo">{{ cao.nome }}</h1>
+        <p>{{ cao.get_sexo_display }} · {{ cao.get_porte_display }} · {{ cao.idade_aproximada }} · {{ cao.localizacao }}</p>
+        <p>Responsável: <strong>{{ cao.protetor }}</strong> · WhatsApp {{ cao.protetor.whatsapp }}</p>
+      </div>
+      <div class="ficha-topo__acoes">
+        {% if cao.publico %}<a class="btn btn--fantasma btn--pequeno" href="{{ cao.get_absolute_url }}">Ver página pública</a>{% endif %}
+        <a class="btn btn--contorno btn--pequeno" href="{% url 'animais:editar' cao.pk %}">Editar cadastro</a>
+        <a class="btn btn--perigo btn--pequeno" href="{% url 'animais:excluir' cao.pk %}">Excluir</a>
+      </div>
+    </header>
+
+    <div class="painel">
+      <div class="painel__principal">
+        <section class="cartao" aria-labelledby="status-titulo">
+          <h2 id="status-titulo">Atualizar situação</h2>
+          <form method="post" action="{% url 'animais:status' cao.pk %}" class="status-form" novalidate>
+            {% csrf_token %}
+            <div class="grade-campos">
+              {% include "partials/_campo.html" with campo=status_form.status %}
+              {% include "partials/_campo.html" with campo=status_form.data_adocao %}
+              {% include "partials/_campo.html" with campo=status_form.observacao largura="cheio" %}
+            </div>
+            <button type="submit" class="btn btn--primario">Registrar atualização</button>
+          </form>
+        </section>
+
+        <section class="cartao" aria-labelledby="info-titulo">
+          <h2 id="info-titulo">Informações</h2>
+          <dl class="ficha ficha--lista">
+            <div><dt>Castrado</dt><dd>{{ cao.castrado|yesno:"Sim,Não" }}</dd></div>
+            <div><dt>Vacinado</dt><dd>{{ cao.vacinado|yesno:"Sim,Não" }}</dd></div>
+            <div><dt>Vermifugado</dt><dd>{{ cao.vermifugado|yesno:"Sim,Não" }}</dd></div>
+            <div><dt>Saúde</dt><dd>{{ cao.saude|default:"—"|linebreaksbr }}</dd></div>
+            <div><dt>Comportamento</dt><dd>{{ cao.comportamento|default:"—"|linebreaksbr }}</dd></div>
+            <div><dt>Observações internas</dt><dd>{{ cao.observacoes_internas|default:"—"|linebreaksbr }}</dd></div>
+          </dl>
+        </section>
+
+        {% if cao.fotos.all %}
+        <section class="cartao" aria-labelledby="fotos-titulo">
+          <h2 id="fotos-titulo">Fotos adicionais</h2>
+          <ul class="fotos-extras">
+            {% for foto in cao.fotos.all %}
+            <li>
+              <img src="{{ foto.imagem.url }}" alt="Foto adicional {{ forloop.counter }} de {{ cao.nome }}" loading="lazy">
+              <form method="post" action="{% url 'animais:excluir_foto' foto.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn--perigo btn--pequeno">Remover<span class="sr-only"> foto {{ forloop.counter }}</span></button>
+              </form>
+            </li>
+            {% endfor %}
+          </ul>
+        </section>
+        {% endif %}
+      </div>
+
+      <aside class="painel__lateral" aria-labelledby="historico-titulo">
+        <h2 id="historico-titulo">Histórico</h2>
+        <ol class="linha-tempo">
+          {% for h in cao.historico.all %}
+          <li>
+            <span class="badge badge--{{ h.status_novo }} badge--mini">{{ h.get_status_novo_display }}</span>
+            {% if h.observacao %}<p>{{ h.observacao }}</p>{% endif %}
+            <small><time datetime="{{ h.criado_em|date:'c' }}">{{ h.criado_em|date:"d/m/Y H:i" }}</time> · {{ h.autor.first_name|default:h.autor.username|default:"Sistema" }}</small>
+          </li>
+          {% empty %}
+          <li>Sem registros.</li>
+          {% endfor %}
+        </ol>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

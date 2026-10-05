@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Adoção responsável de cães{% endblock %}
+
+{% block conteudo %}
+<section class="hero" aria-labelledby="hero-titulo">
+  <div class="container hero__grid">
+    <div class="hero__texto">
+      <p class="sobretitulo">Protetores independentes · Brasília – DF</p>
+      <h1 id="hero-titulo" class="hero__titulo">Um lar muda <em>tudo</em> na vida de um cão resgatado.</h1>
+      <p class="hero__lead">{{ site.slogan }} Conheça os cães que estão prontos para fazer parte da sua família e fale diretamente com o protetor responsável.</p>
+      <div class="hero__acoes">
+        <a class="btn btn--primario" href="{% url 'animais:lista' %}">Conhecer os cães</a>
+        <a class="btn btn--contorno" href="{% url 'animais:apoie' %}">Quero ajudar</a>
+      </div>
+      <dl class="numeros">
+        <div><dt>Esperando um lar</dt><dd data-contador="{{ total_disponiveis }}">{{ total_disponiveis }}</dd></div>
+        <div><dt>Finais felizes</dt><dd data-contador="{{ total_adotados }}">{{ total_adotados }}</dd></div>
+        <div><dt>Protetores</dt><dd data-contador="{{ total_protetores }}">{{ total_protetores }}</dd></div>
+      </dl>
+    </div>
+    <div class="hero__midia" aria-hidden="true">
+      {% for cao in destaques|slice:":3" %}
+        <img class="hero__foto hero__foto--{{ forloop.counter }}" src="{{ cao.foto.url }}" alt="" width="320" height="320">
+      {% endfor %}
+      <span class="hero__blob"></span>
+    </div>
+  </div>
+</section>
+
+<section class="secao" aria-labelledby="destaques-titulo">
+  <div class="container">
+    <header class="secao__cabecalho">
+      <h2 id="destaques-titulo">Esperando por você</h2>
+      <a class="link-seta" href="{% url 'animais:lista' %}">Ver todos <span aria-hidden="true">→</span></a>
+    </header>
+    {% if destaques %}
+      <div class="grade-cards">
+        {% for cao in destaques %}{% include "partials/_card_cao.html" %}{% endfor %}
+      </div>
+    {% else %}
+      <p class="vazio">Nenhum cão disponível no momento. Volte em breve!</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="secao secao--suave" aria-labelledby="como-titulo">
+  <div class="container">
+    <h2 id="como-titulo" class="centro">Como funciona a adoção</h2>
+    <ol class="passos">
+      <li class="passo"><span class="passo__num" aria-hidden="true">1</span><h3>Escolha</h3><p>Navegue pelos perfis e conheça a história, a saúde e o comportamento de cada cão.</p></li>
+      <li class="passo"><span class="passo__num" aria-hidden="true">2</span><h3>Converse</h3><p>Fale pelo WhatsApp com o protetor responsável e tire suas dúvidas.</p></li>
+      <li class="passo"><span class="passo__num" aria-hidden="true">3</span><h3>Entrevista e visita</h3><p>O protetor realiza uma conversa e uma visita para garantir uma boa adaptação.</p></li>
+      <li class="passo"><span class="passo__num" aria-hidden="true">4</span><h3>Termo e acompanhamento</h3><p>Assinatura do termo de adoção responsável e acompanhamento por cerca de seis meses.</p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="secao" aria-labelledby="apoio-titulo">
+  <div class="container cta">
+    <div>
+      <h2 id="apoio-titulo">Não pode adotar agora?</h2>
+      <p>Consultas, castrações e ração são custeadas por doações. Qualquer valor ajuda — e compartilhar os perfis também!</p>
+    </div>
+    <a class="btn btn--claro" href="{% url 'animais:apoie' %}">Doar via PIX</a>
+  </div>
+</section>
+{% endblock %}

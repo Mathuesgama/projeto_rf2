@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% block titulo %}Painel do protetor{% endblock %}
+{% block body_class %}area-interna{% endblock %}
+
+{% block conteudo %}
+<section class="secao secao--topo" aria-labelledby="painel-titulo">
+  <div class="container">
+    <header class="pagina-cabecalho pagina-cabecalho--acao">
+      <div>
+        <p class="sobretitulo">Olá, {{ user.first_name|default:user.username }}</p>
+        <h1 id="painel-titulo">Painel dos protetores</h1>
+      </div>
+      <a class="btn btn--primario" href="{% url 'animais:novo' %}">+ Cadastrar cão</a>
+    </header>
+
+    <ul class="indicadores" aria-label="Quantidade de cães por situação">
+      {% for ind in indicadores %}
+      <li>
+        <a class="indicador indicador--{{ ind.valor }}{% if status_sel == ind.valor %} is-ativo{% endif %}"
+           href="{% querystring status=ind.valor page=None %}"{% if status_sel == ind.valor %} aria-current="true"{% endif %}>
+          <span class="indicador__total">{{ ind.total }}</span>
+          <span class="indicador__rotulo">{{ ind.rotulo }}</span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+
+    <div class="painel">
+      <section class="painel__principal" aria-labelledby="tabela-titulo">
+        <form class="filtros filtros--compacto" method="get" aria-label="Filtrar cães do painel">
+          <div class="filtros__campo">
+            <label for="f-protetor">Protetor responsável</label>
+            <select id="f-protetor" name="protetor">
+              <option value="">Todos</option>
+              {% if user.protetor %}<option value="meus" {% if protetor_sel == "meus" %}selected{% endif %}>Somente os meus</option>{% endif %}
+              {% for p in protetores %}
+                <option value="{{ p.pk }}" {% if protetor_sel == p.pk|stringformat:"s" %}selected{% endif %}>{{ p }} ({{ p.total }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="filtros__campo">
+            <label for="f-status">Situação</label>
+            <select id="f-status" name="status">
+              <option value="">Todas</option>
+              {% for v, r in status_choices %}<option value="{{ v }}" {% if status_sel == v %}selected{% endif %}>{{ r }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="filtros__acoes">
+            <button class="btn btn--primario btn--pequeno" type="submit">Aplicar</button>
+            {% if request.GET %}<a class="btn btn--fantasma btn--pequeno" href="{% url 'animais:painel' %}">Limpar</a>{% endif %}
+          </div>
+        </form>
+
+        <h2 id="tabela-titulo" class="sr-only">Lista de cães</h2>
+        {% if caes %}
+        <div class="tabela-wrap">
+          <table class="tabela">
+            <caption class="sr-only">Cães cadastrados, com situação e protetor responsável</caption>
+            <thead>
+              <tr><th scope="col">Cão</th><th scope="col">Situação</th><th scope="col">Responsável</th><th scope="col">Atualizado</th><th scope="col"><span class="sr-only">Ações</span></th></tr>
+            </thead>
+            <tbody>
+              {% for cao in caes %}
+              <tr>
+                <td data-rotulo="Cão">
+                  <a class="tabela__cao" href="{% url 'animais:gerenciar' cao.pk %}">
+                    <img src="{{ cao.foto.url }}" alt="" width="44" height="44" loading="lazy">
+                    <span><strong>{{ cao.nome }}</strong><small>{{ cao.get_sexo_display }} · {{ cao.idade_aproximada }}</small></span>
+                  </a>
+                </td>
+                <td data-rotulo="Situação"><span class="badge badge--{{ cao.status }}">{{ cao.get_status_display }}</span></td>
+                <td data-rotulo="Responsável">{{ cao.protetor }}</td>
+                <td data-rotulo="Atualizado"><time datetime="{{ cao.atualizado_em|date:'c' }}">{{ cao.atualizado_em|date:"d/m/Y" }}</time></td>
+                <td class="tabela__acoes"><a class="btn btn--contorno btn--pequeno" href="{% url 'animais:editar' cao.pk %}">Editar<span class="sr-only"> {{ cao.nome }}</span></a></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% include "partials/_paginacao.html" %}
+        {% else %}
+          <p class="vazio">Nenhum cão encontrado com esses filtros.</p>
+        {% endif %}
+      </section>
+
+      <aside class="painel__lateral" aria-labelledby="atividade-titulo">
+        <h2 id="atividade-titulo">Atividade recente</h2>
+        <ol class="linha-tempo">
+          {% for h in recentes %}
+          <li>
+            <a href="{% url 'animais:gerenciar' h.cao_id %}"><strong>{{ h.cao.nome }}</strong></a>
+            → <span class="badge badge--{{ h.status_novo }} badge--mini">{{ h.get_status_novo_display }}</span>
+            <small>{{ h.autor.first_name|default:h.autor.username|default:"Sistema" }} · {{ h.criado_em|timesince }} atrás</small>
+          </li>
+          {% empty %}
+          <li>Nenhuma atividade ainda.</li>
+          {% endfor %}
+        </ol>
+      </aside>
+    </div>
+  </div>
+</section>
+{% endblock %}

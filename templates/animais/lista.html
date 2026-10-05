@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block titulo %}Cães para adoção{% endblock %}
+{% block descricao %}Veja os cães resgatados disponíveis para adoção responsável e filtre por sexo, porte e idade.{% endblock %}
+
+{% block conteudo %}
+<section class="secao secao--topo" aria-labelledby="lista-titulo">
+  <div class="container">
+    <header class="pagina-cabecalho">
+      <h1 id="lista-titulo">Cães para adoção</h1>
+      <p>Todos os perfis são atualizados pelos próprios protetores. Encontrou alguém especial? Fale com o responsável.</p>
+    </header>
+
+    <form class="filtros" method="get" role="search" aria-label="Filtrar cães">
+      {% for campo in filtro %}
+        <div class="filtros__campo">
+          <label for="{{ campo.id_for_label }}">{{ campo.label }}</label>
+          {{ campo }}
+        </div>
+      {% endfor %}
+      <div class="filtros__acoes">
+        <button class="btn btn--primario" type="submit">Filtrar</button>
+        {% if request.GET %}<a class="btn btn--fantasma" href="{% url 'animais:lista' %}">Limpar</a>{% endif %}
+      </div>
+    </form>
+
+    <p class="resultado" aria-live="polite">{{ paginator.count }} cão{{ paginator.count|pluralize:"es" }} encontrado{{ paginator.count|pluralize }}</p>
+
+    {% if caes %}
+      <div class="grade-cards">
+        {% for cao in caes %}{% include "partials/_card_cao.html" %}{% endfor %}
+      </div>
+      {% include "partials/_paginacao.html" %}
+    {% else %}
+      <p class="vazio">Nenhum cão encontrado com esses filtros.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

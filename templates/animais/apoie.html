@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block titulo %}Apoie o projeto{% endblock %}
+{% block descricao %}Ajude a custear consultas, castrações e alimentação dos cães resgatados com uma doação via PIX.{% endblock %}
+
+{% block conteudo %}
+<section class="secao secao--topo" aria-labelledby="apoie-titulo">
+  <div class="container apoie">
+    <div class="apoie__texto">
+      <h1 id="apoie-titulo">Apoie o projeto</h1>
+      <p class="hero__lead">Todo o trabalho é voluntário. As doações custeiam consultas veterinárias, castrações, vacinas, medicamentos e ração enquanto os cães aguardam um lar.</p>
+      <ul class="lista-icones">
+        <li><strong>R$ 30</strong> garantem uma semana de ração para um cão médio.</li>
+        <li><strong>R$ 80</strong> ajudam a cobrir vacinas e vermífugos.</li>
+        <li><strong>R$ 200</strong> contribuem para uma castração.</li>
+      </ul>
+      <h2>Outras formas de ajudar</h2>
+      <ul class="lista-icones">
+        <li>Ofereça um <strong>lar temporário</strong> enquanto o cão se recupera.</li>
+        <li><strong>Compartilhe</strong> os perfis nas suas redes sociais.</li>
+        <li>Doe ração, cobertores, coleiras e medicamentos.</li>
+      </ul>
+    </div>
+
+    <aside class="pix-card" aria-labelledby="pix-titulo">
+      <h2 id="pix-titulo">Doe via PIX</h2>
+      {% if site.chave_pix %}
+        <p class="pix-card__rotulo">Chave PIX</p>
+        <p class="pix-card__chave" id="chave-pix">{{ site.chave_pix }}</p>
+        {% if site.favorecido_pix %}<p class="pix-card__favorecido">Favorecido: {{ site.favorecido_pix }}</p>{% endif %}
+        <button type="button" class="btn btn--primario btn--bloco" data-copiar="#chave-pix">Copiar chave PIX</button>
+        <p class="contato-card__dica" data-copiar-feedback role="status" aria-live="polite"></p>
+      {% else %}
+        <p>A chave PIX ainda não foi configurada pelos responsáveis.</p>
+      {% endif %}
+      <p class="pix-card__nota">Confira sempre o nome do favorecido antes de confirmar a transferência.</p>
+    </aside>
+  </div>
+</section>
+{% endblock %}

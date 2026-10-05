@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}Área do protetor{% endblock %}
+{% block descricao %}Acesso restrito aos protetores responsáveis pelos cadastros.{% endblock %}
+
+{% block conteudo %}
+<section class="secao secao--topo login" aria-labelledby="login-titulo">
+  <div class="container container--mini">
+    <div class="cartao cartao--login">
+      <h1 id="login-titulo">Área do protetor</h1>
+      <p>Entre para cadastrar e atualizar os cães sob sua responsabilidade.</p>
+      {% if form.errors %}
+        <p class="mensagem mensagem--error" role="alert">Usuário ou senha incorretos. Tente novamente.</p>
+      {% endif %}
+      <form method="post" class="formulario" novalidate>
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <div class="campo">
+          <label for="{{ form.username.id_for_label }}">Usuário</label>
+          <input type="text" name="username" id="{{ form.username.id_for_label }}" autocomplete="username" required autofocus value="{{ form.username.value|default:'' }}">
+        </div>
+        <div class="campo">
+          <label for="{{ form.password.id_for_label }}">Senha</label>
+          <input type="password" name="password" id="{{ form.password.id_for_label }}" autocomplete="current-password" required>
+        </div>
+        <button type="submit" class="btn btn--primario btn--bloco">Entrar</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

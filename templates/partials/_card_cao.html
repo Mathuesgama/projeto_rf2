@@ -1,0 +1,23 @@
+<article class="card-cao">
+  <a class="card-cao__link" href="{{ cao.get_absolute_url }}">
+    <div class="card-cao__midia">
+      <img src="{{ cao.foto.url }}" alt="Foto de {{ cao.nome }}" loading="lazy" width="400" height="400">
+      <span class="badge badge--{{ cao.status }}">{{ cao.get_status_display }}</span>
+    </div>
+    <div class="card-cao__corpo">
+      <h3 class="card-cao__nome">{{ cao.nome }}</h3>
+      <p class="card-cao__meta">
+        {{ cao.get_sexo_display }} · {{ cao.get_porte_display }} · {{ cao.idade_aproximada }}
+      </p>
+      <p class="card-cao__local">
+        <svg aria-hidden="true" viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5Z"/></svg>
+        {{ cao.localizacao }}
+      </p>
+      <ul class="tags" aria-label="Cuidados">
+        {% if cao.castrado %}<li class="tag">Castrad{{ cao.artigo }}</li>{% endif %}
+        {% if cao.vacinado %}<li class="tag">Vacinad{{ cao.artigo }}</li>{% endif %}
+        {% if cao.vermifugado %}<li class="tag">Vermifugad{{ cao.artigo }}</li>{% endif %}
+      </ul>
+    </div>
+  </a>
+</article>

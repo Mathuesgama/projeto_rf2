@@ -1,0 +1,98 @@
+{% load static %}<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}{{ site.nome_projeto }}{% endblock %} · {{ site.nome_projeto }}</title>
+  <meta name="description" content="{% block descricao %}{{ site.slogan }} Conheça os cães resgatados disponíveis para adoção responsável.{% endblock %}">
+  <meta name="theme-color" content="#e8590c">
+  {% block og %}
+  <meta property="og:title" content="{{ site.nome_projeto }}">
+  <meta property="og:description" content="{{ site.slogan }}">
+  {% endblock %}
+  <link rel="icon" href="{% static 'img/favicon.svg' %}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+
+  <header class="cabecalho" id="topo">
+    <div class="container cabecalho__inner">
+      <a class="marca" href="{% url 'animais:inicio' %}" aria-label="{{ site.nome_projeto }} – página inicial">
+        <img src="{% static 'img/favicon.svg' %}" alt="" width="36" height="36">
+        <span>{{ site.nome_projeto }}</span>
+      </a>
+
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="menu-principal" data-menu-toggle>
+        <span class="menu-toggle__barra" aria-hidden="true"></span>
+        <span class="sr-only">Abrir menu</span>
+      </button>
+
+      <nav class="nav" id="menu-principal" aria-label="Menu principal">
+        {% with url=request.resolver_match.url_name %}
+        <ul class="nav__lista">
+          <li><a href="{% url 'animais:lista' %}" {% if url == 'lista' or url == 'detalhe' %}aria-current="page"{% endif %}>Adote</a></li>
+          <li><a href="{% url 'animais:adotados' %}" {% if url == 'adotados' %}aria-current="page"{% endif %}>Finais felizes</a></li>
+          <li><a href="{% url 'animais:apoie' %}" {% if url == 'apoie' %}aria-current="page"{% endif %}>Apoie</a></li>
+          {% if user.is_authenticated %}
+            <li><a href="{% url 'animais:painel' %}" {% if url == 'painel' or url == 'gerenciar' or url == 'novo' or url == 'editar' %}aria-current="page"{% endif %}>Painel</a></li>
+            <li>
+              <form action="{% url 'logout' %}" method="post" class="nav__sair">
+                {% csrf_token %}
+                <button type="submit" class="btn btn--fantasma btn--pequeno">Sair</button>
+              </form>
+            </li>
+          {% else %}
+            <li><a class="btn btn--contorno btn--pequeno" href="{% url 'login' %}">Área do protetor</a></li>
+          {% endif %}
+        </ul>
+        {% endwith %}
+      </nav>
+    </div>
+  </header>
+
+  {% if messages %}
+  <div class="container mensagens" role="status" aria-live="polite">
+    {% for message in messages %}
+      <p class="mensagem mensagem--{{ message.tags }}" data-mensagem>{{ message }}
+        <button type="button" class="mensagem__fechar" aria-label="Fechar aviso" data-fechar>&times;</button>
+      </p>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <main id="conteudo" tabindex="-1">
+    {% block conteudo %}{% endblock %}
+  </main>
+
+  <footer class="rodape">
+    <div class="container rodape__grid">
+      <section aria-labelledby="rodape-sobre">
+        <h2 id="rodape-sobre" class="rodape__titulo">{{ site.nome_projeto }}</h2>
+        <p>{{ site.sobre }}</p>
+      </section>
+      <section aria-labelledby="rodape-links">
+        <h2 id="rodape-links" class="rodape__titulo">Navegue</h2>
+        <ul class="rodape__lista">
+          <li><a href="{% url 'animais:lista' %}">Cães para adoção</a></li>
+          <li><a href="{% url 'animais:adotados' %}">Finais felizes</a></li>
+          <li><a href="{% url 'animais:apoie' %}">Como apoiar</a></li>
+        </ul>
+      </section>
+      <section aria-labelledby="rodape-contato">
+        <h2 id="rodape-contato" class="rodape__titulo">Contato</h2>
+        <ul class="rodape__lista">
+          {% if site.instagram %}<li><a href="{{ site.instagram_url }}" target="_blank" rel="noopener">Instagram {{ site.instagram }}</a></li>{% endif %}
+          {% if site.email %}<li><a href="mailto:{{ site.email }}">{{ site.email }}</a></li>{% endif %}
+        </ul>
+      </section>
+    </div>
+    <p class="container rodape__copy">Projeto de extensão · UFMS Digital · Desenvolvido com Django</p>
+  </footer>
+
+  <script src="{% static 'js/app.js' %}" defer></script>
+</body>
+</html>

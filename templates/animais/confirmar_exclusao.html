@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block titulo %}Excluir {{ cao.nome }}{% endblock %}
+{% block body_class %}area-interna{% endblock %}
+
+{% block conteudo %}
+<section class="secao secao--topo" aria-labelledby="excluir-titulo">
+  <div class="container container--estreito">
+    <div class="cartao cartao--alerta">
+      <h1 id="excluir-titulo">Excluir {{ cao.nome }}?</h1>
+      <p>Esta ação remove o cadastro, as fotos e todo o histórico. Se {{ cao.artigo }} {{ cao.nome }} foi adotad{{ cao.artigo }}, prefira atualizar a situação para “Adotado” e manter o histórico.</p>
+      <form method="post" class="formulario__acoes">
+        {% csrf_token %}
+        <a class="btn btn--fantasma" href="{% url 'animais:gerenciar' cao.pk %}">Cancelar</a>
+        <button type="submit" class="btn btn--perigo">Sim, excluir</button>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

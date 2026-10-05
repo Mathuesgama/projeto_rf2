@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block titulo %}{% if object %}Editar {{ object.nome }}{% else %}Cadastrar cão{% endif %}{% endblock %}
+{% block body_class %}area-interna{% endblock %}
+
+{% block conteudo %}
+<section class="secao secao--topo" aria-labelledby="form-titulo">
+  <div class="container container--estreito">
+    <nav class="trilha" aria-label="Trilha de navegação">
+      <ol>
+        <li><a href="{% url 'animais:painel' %}">Painel</a></li>
+        {% if object %}<li><a href="{% url 'animais:gerenciar' object.pk %}">{{ object.nome }}</a></li>{% endif %}
+        <li aria-current="page">{% if object %}Editar{% else %}Novo cadastro{% endif %}</li>
+      </ol>
+    </nav>
+    <h1 id="form-titulo">{% if object %}Editar {{ object.nome }}{% else %}Cadastrar cão{% endif %}</h1>
+    <p class="form-intro">Campos marcados com <span class="obrigatorio">*</span> são obrigatórios. Evite informar endereços completos ou dados pessoais de terceiros.</p>
+
+    {% if form.non_field_errors %}<div class="mensagem mensagem--error" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+
+    <form method="post" enctype="multipart/form-data" class="formulario" novalidate>
+      {% csrf_token %}
+      <fieldset class="formulario__grupo">
+        <legend>Identificação</legend>
+        <div class="grade-campos">
+          {% include "partials/_campo.html" with campo=form.nome largura="cheio" %}
+          {% include "partials/_campo.html" with campo=form.sexo %}
+          {% include "partials/_campo.html" with campo=form.porte %}
+          {% include "partials/_campo.html" with campo=form.faixa_etaria %}
+          {% include "partials/_campo.html" with campo=form.idade_aproximada %}
+          {% include "partials/_campo.html" with campo=form.localizacao largura="cheio" %}
+        </div>
+      </fieldset>
+
+      <fieldset class="formulario__grupo">
+        <legend>Responsável e situação</legend>
+        <div class="grade-campos">
+          {% include "partials/_campo.html" with campo=form.protetor largura="cheio" %}
+          {% include "partials/_campo.html" with campo=form.status %}
+          {% include "partials/_campo.html" with campo=form.data_adocao %}
+          {% include "partials/_campo.html" with campo=form.observacao_status largura="cheio" %}
+        </div>
+      </fieldset>
+
+      <fieldset class="formulario__grupo">
+        <legend>Saúde e comportamento</legend>
+        <div class="grade-checks">
+          {% include "partials/_campo.html" with campo=form.castrado %}
+          {% include "partials/_campo.html" with campo=form.vacinado %}
+          {% include "partials/_campo.html" with campo=form.vermifugado %}
+        </div>
+        {% include "partials/_campo.html" with campo=form.saude %}
+        {% include "partials/_campo.html" with campo=form.comportamento %}
+      </fieldset>
+
+      <fieldset class="formulario__grupo">
+        <legend>Divulgação</legend>
+        {% include "partials/_campo.html" with campo=form.descricao %}
+        {% include "partials/_campo.html" with campo=form.foto %}
+        <img class="preview" alt="Pré-visualização da foto principal" data-preview-de="{{ form.foto.id_for_label }}" {% if object.foto %}src="{{ object.foto.url }}"{% else %}hidden{% endif %}>
+        {% include "partials/_campo.html" with campo=form.fotos_extras %}
+      </fieldset>
+
+      <fieldset class="formulario__grupo">
+        <legend>Uso interno</legend>
+        {% include "partials/_campo.html" with campo=form.observacoes_internas %}
+      </fieldset>
+
+      <div class="formulario__acoes">
+        <a class="btn btn--fantasma" href="{% if object %}{% url 'animais:gerenciar' object.pk %}{% else %}{% url 'animais:painel' %}{% endif %}">Cancelar</a>
+        <button type="submit" class="btn btn--primario">{% if object %}Salvar alterações{% else %}Cadastrar{% endif %}</button>
+      </div>
+    </form>
+  </div>
+</section>
+{% endblock %}
