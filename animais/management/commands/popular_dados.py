@@ -4,6 +4,7 @@ Popula o banco com dados FICTÍCIOS para demonstração.
 Uso:
     python manage.py popular_dados          # cria se o banco estiver vazio
     python manage.py popular_dados --publico # demonstração pública sem contas de login
+    python manage.py popular_dados --protetor-existente rayane.leal # usa um perfil já cadastrado
     python manage.py popular_dados --limpar # apaga cães/protetores e recria
 """
 from datetime import timedelta
@@ -98,19 +99,26 @@ class Command(BaseCommand):
             action="store_true",
             help="Não cria outro administrador e desativa as contas fictícias de protetores.",
         )
+        parser.add_argument(
+            "--protetor-existente",
+            metavar="USUARIO",
+            help="Vincula todos os cães ao perfil de protetor já cadastrado, sem criar contas fictícias.",
+        )
 
     @transaction.atomic
-    def handle(self, *args, limpar=False, publico=False, **opts):
+    def handle(self, *args, limpar=False, publico=False, protetor_existente=None, **opts):
         User = get_user_model()
-        if limpar and publico:
-            raise CommandError("Não combine --limpar com --publico.")
+        if limpar and (publico or protetor_existente):
+            raise CommandError("Não combine --limpar com --publico ou --protetor-existente.")
+        if publico and protetor_existente:
+            raise CommandError("Use --publico ou --protetor-existente, não ambos.")
 
         if limpar:
             Cao.objects.all().delete()
             Protetor.objects.all().delete()
             User.objects.filter(username__in=[p[0] for p in PROTETORES]).delete()
         elif Cao.objects.exists():
-            self.stdout.write(self.style.WARNING("Já existem cães cadastrados. Use --limpar para recriar."))
+            self.stdout.write(self.style.WARNING("Já existem cães cadastrados. Nenhuma alteração foi feita."))
             return
 
         if publico:
@@ -125,31 +133,43 @@ class Command(BaseCommand):
                     "Renomeie-as antes de popular para não alterar contas existentes."
                 )
 
-        config = ConfiguracaoSite.obter()
-        config.nome_projeto = "Patas de Brasília"
-        config.slogan = "Adoção responsável que transforma vidas."
-        config.chave_pix = "doacoes@patasdebrasilia.org"
-        config.favorecido_pix = "Associação Patas de Brasília (exemplo)"
-        config.instagram = "@patasdebrasilia"
-        config.email = "contato@patasdebrasilia.org"
-        config.save()
-
         protetores = {}
-        for username, nome, sobrenome, whats, regiao in PROTETORES:
-            user, _ = User.objects.get_or_create(
-                username=username, defaults={"first_name": nome, "last_name": sobrenome}
-            )
-            if publico:
-                user.set_unusable_password()
-                user.is_active = False
-            else:
-                user.set_password(SENHA_PADRAO)
-            user.save()
-            protetores[username], _ = Protetor.objects.get_or_create(
-                usuario=user, defaults={"whatsapp": whats, "regiao": regiao}
-            )
+        if protetor_existente:
+            try:
+                perfil = Protetor.objects.select_related("usuario").get(
+                    usuario__username=protetor_existente
+                )
+            except Protetor.DoesNotExist as exc:
+                raise CommandError(
+                    f"Não encontrei um perfil de protetor para o usuário '{protetor_existente}'. "
+                    "Cadastre o perfil em /admin/ antes de executar este comando."
+                ) from exc
+            protetores = {username: perfil for username, *_ in PROTETORES}
+        else:
+            config = ConfiguracaoSite.obter()
+            config.nome_projeto = "Patas de Brasília"
+            config.slogan = "Adoção responsável que transforma vidas."
+            config.chave_pix = "doacoes@patasdebrasilia.org"
+            config.favorecido_pix = "Associação Patas de Brasília (exemplo)"
+            config.instagram = "@patasdebrasilia"
+            config.email = "contato@patasdebrasilia.org"
+            config.save()
 
-        if not publico and not User.objects.filter(username="admin").exists():
+            for username, nome, sobrenome, whats, regiao in PROTETORES:
+                user, _ = User.objects.get_or_create(
+                    username=username, defaults={"first_name": nome, "last_name": sobrenome}
+                )
+                if publico:
+                    user.set_unusable_password()
+                    user.is_active = False
+                else:
+                    user.set_password(SENHA_PADRAO)
+                user.save()
+                protetores[username], _ = Protetor.objects.get_or_create(
+                    usuario=user, defaults={"whatsapp": whats, "regiao": regiao}
+                )
+
+        if not publico and not protetor_existente and not User.objects.filter(username="admin").exists():
             User.objects.create_superuser("admin", "admin@example.com", "admin123", first_name="Admin")
 
         agora = timezone.now()
@@ -180,7 +200,12 @@ class Command(BaseCommand):
                 anterior = st
 
         mensagem = f"Dados criados: {len(PROTETORES)} protetores e {len(CAES)} cães."
-        if publico:
+        if protetor_existente:
+            mensagem = (
+                f"Dados criados: {len(CAES)} cães vinculados ao protetor "
+                f"'{protetor_existente}'. Nenhuma conta ou configuração do site foi alterada."
+            )
+        elif publico:
             mensagem += " Contas fictícias desativadas; nenhum administrador novo foi criado."
         else:
             mensagem += f"\nLogin de protetor: ana / {SENHA_PADRAO}  ·  Admin: admin / admin123"

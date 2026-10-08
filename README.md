@@ -78,6 +78,9 @@ python manage.py popular_dados
 # Em uma demonstração pública, substitua a linha anterior por esta opção:
 # python manage.py popular_dados --publico
 
+# Para vincular cães fictícios a um perfil de protetor já existente:
+# python manage.py popular_dados --protetor-existente rayane.leal
+
 # 5. Executar
 python manage.py runserver
 ```
@@ -86,7 +89,7 @@ Acesse **http://127.0.0.1:8000/**.
 
 ### Usuários de demonstração
 
-O comando local `popular_dados` cria contas de demonstração com as credenciais abaixo. Não use essas contas em um site público. Para publicar dados fictícios sem criar outro administrador nem permitir login com as contas dos protetores, execute `python manage.py popular_dados --publico`.
+O comando local `popular_dados` cria contas de demonstração com as credenciais abaixo. Não use essas contas em um site público. Para criar cães fictícios sem criar protetores, associe-os a um perfil já cadastrado usando `python manage.py popular_dados --protetor-existente NOME_DE_USUARIO`. Para criar protetores fictícios sem permitir login, use `python manage.py popular_dados --publico`.
 
 | Perfil | Usuário | Senha |
 |---|---|---|
