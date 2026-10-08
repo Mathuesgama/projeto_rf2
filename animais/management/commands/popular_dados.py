@@ -3,6 +3,7 @@ Popula o banco com dados FICTÍCIOS para demonstração.
 
 Uso:
     python manage.py popular_dados          # cria se o banco estiver vazio
+    python manage.py popular_dados --publico # demonstração pública sem contas de login
     python manage.py popular_dados --limpar # apaga cães/protetores e recria
 """
 from datetime import timedelta
@@ -11,7 +12,7 @@ from pathlib import Path
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.files import File
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
 from django.utils import timezone
 
@@ -92,10 +93,18 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("--limpar", action="store_true", help="Remove os dados existentes antes.")
+        parser.add_argument(
+            "--publico",
+            action="store_true",
+            help="Não cria outro administrador e desativa as contas fictícias de protetores.",
+        )
 
     @transaction.atomic
-    def handle(self, *args, limpar=False, **opts):
+    def handle(self, *args, limpar=False, publico=False, **opts):
         User = get_user_model()
+        if limpar and publico:
+            raise CommandError("Não combine --limpar com --publico.")
+
         if limpar:
             Cao.objects.all().delete()
             Protetor.objects.all().delete()
@@ -103,6 +112,18 @@ class Command(BaseCommand):
         elif Cao.objects.exists():
             self.stdout.write(self.style.WARNING("Já existem cães cadastrados. Use --limpar para recriar."))
             return
+
+        if publico:
+            conflitos = list(
+                User.objects.filter(username__in=[p[0] for p in PROTETORES])
+                .values_list("username", flat=True)
+            )
+            if conflitos:
+                nomes = ", ".join(conflitos)
+                raise CommandError(
+                    f"Já existem contas com os nomes reservados para a demonstração: {nomes}. "
+                    "Renomeie-as antes de popular para não alterar contas existentes."
+                )
 
         config = ConfiguracaoSite.obter()
         config.nome_projeto = "Patas de Brasília"
@@ -118,13 +139,17 @@ class Command(BaseCommand):
             user, _ = User.objects.get_or_create(
                 username=username, defaults={"first_name": nome, "last_name": sobrenome}
             )
-            user.set_password(SENHA_PADRAO)
+            if publico:
+                user.set_unusable_password()
+                user.is_active = False
+            else:
+                user.set_password(SENHA_PADRAO)
             user.save()
             protetores[username], _ = Protetor.objects.get_or_create(
                 usuario=user, defaults={"whatsapp": whats, "regiao": regiao}
             )
 
-        if not User.objects.filter(username="admin").exists():
+        if not publico and not User.objects.filter(username="admin").exists():
             User.objects.create_superuser("admin", "admin@example.com", "admin123", first_name="Admin")
 
         agora = timezone.now()
@@ -154,7 +179,9 @@ class Command(BaseCommand):
                 )
                 anterior = st
 
-        self.stdout.write(self.style.SUCCESS(
-            f"Dados criados: {len(PROTETORES)} protetores e {len(CAES)} cães.\n"
-            f"Login de protetor: ana / {SENHA_PADRAO}  ·  Admin: admin / admin123"
-        ))
+        mensagem = f"Dados criados: {len(PROTETORES)} protetores e {len(CAES)} cães."
+        if publico:
+            mensagem += " Contas fictícias desativadas; nenhum administrador novo foi criado."
+        else:
+            mensagem += f"\nLogin de protetor: ana / {SENHA_PADRAO}  ·  Admin: admin / admin123"
+        self.stdout.write(self.style.SUCCESS(mensagem))

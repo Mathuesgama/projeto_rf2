@@ -75,6 +75,9 @@ pip install -r requirements.txt
 python manage.py migrate
 python manage.py popular_dados
 
+# Em uma demonstração pública, substitua a linha anterior por esta opção:
+# python manage.py popular_dados --publico
+
 # 5. Executar
 python manage.py runserver
 ```
@@ -82,6 +85,8 @@ python manage.py runserver
 Acesse **http://127.0.0.1:8000/**.
 
 ### Usuários de demonstração
+
+O comando local `popular_dados` cria contas de demonstração com as credenciais abaixo. Não use essas contas em um site público. Para publicar dados fictícios sem criar outro administrador nem permitir login com as contas dos protetores, execute `python manage.py popular_dados --publico`.
 
 | Perfil | Usuário | Senha |
 |---|---|---|
