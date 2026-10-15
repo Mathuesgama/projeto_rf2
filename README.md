@@ -58,8 +58,8 @@ protetor_rf2/
 
 ```bash
 # 1. Clonar o repositório
-git clone <URL-DO-REPOSITORIO>
-cd protetor_rf2
+git clone https://github.com/Mathuesgama/projeto_rf2.git
+cd projeto_rf2
 
 # 2. Criar e ativar o ambiente virtual
 python -m venv .venv
@@ -111,6 +111,16 @@ python manage.py test animais
 ```
 
 Os testes cobrem: visibilidade pública por status, 404 para cães em tratamento, link do WhatsApp, filtros, exigência de login, histórico no cadastro e na mudança de status, validação da data de adoção e filtro “meus cães”.
+
+## Banco de dados e controle de versão — Módulo 3
+
+O [roteiro do banco de dados](banco_dados/README.md) contém esquema SQL derivado das migrations, diagrama, dicionário de dados, carga fictícia e operações CRUD verificadas em SQLite em memória.
+
+```bash
+python banco_dados/demonstrar.py
+```
+
+O comando não modifica o banco da aplicação. Consulte [os resultados da execução](banco_dados/evidencias_sql.txt) e o [modelo relacional](banco_dados/modelo.png).
 
 ## ☁️ Publicação (produção)
 

@@ -1,0 +1,46 @@
+erDiagram
+    USUARIO ||--o| PROTETOR : possui_perfil
+    PROTETOR ||--o{ CAO : responsavel
+    CAO ||--o{ FOTO_CAO : possui
+    CAO ||--o{ HISTORICO_STATUS : possui
+    USUARIO o|--o{ HISTORICO_STATUS : autor_opcional
+    USUARIO {
+        integer id PK
+        varchar username UK
+        varchar first_name
+    }
+    PROTETOR {
+        integer id PK
+        integer usuario_id FK,UK
+        varchar whatsapp
+        varchar regiao
+    }
+    CAO {
+        integer id PK
+        bigint protetor_id FK
+        varchar nome
+        varchar sexo
+        varchar porte
+        varchar faixa_etaria
+        varchar status
+        date data_adocao
+    }
+    FOTO_CAO {
+        integer id PK
+        bigint cao_id FK
+        varchar imagem
+        datetime enviada_em
+    }
+    HISTORICO_STATUS {
+        integer id PK
+        bigint cao_id FK
+        integer autor_id FK
+        varchar status_anterior
+        varchar status_novo
+        datetime criado_em
+    }
+    CONFIGURACAO_SITE {
+        integer id PK
+        varchar nome_projeto
+        varchar chave_pix
+    }

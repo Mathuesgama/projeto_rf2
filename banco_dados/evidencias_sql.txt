@@ -1,0 +1,61 @@
+PATAS DE BRASÍLIA | DEMONSTRAÇÃO SQL DO MÓDULO 3
+Execução isolada em memória; dados fictícios.
+
+OK | Chaves estrangeiras ativas
+OK | INSERT: auth_user = 2
+OK | INSERT: animais_protetor = 2
+OK | INSERT: animais_cao = 4
+OK | INSERT: animais_fotocao = 2
+OK | INSERT: animais_historicostatus = 5
+OK | INSERT: animais_configuracaosite = 1
+
+CONSULTAS ANTES DA MANIPULAÇÃO
+Q1 | id | nome | status | protetor | localizacao
+     1 | Paçoca | disponivel | Ana | Asa Norte
+     3 | Rex | lar_temporario | Bruno | Taguatinga
+Q2 | protetor | caes_nao_adotados
+     Ana | 2
+     Bruno | 1
+Q3 | nome | status_anterior | status_novo | criado_em | autor
+     Paçoca |  | tratamento | 2026-10-14 12:00:00 | Ana
+     Paçoca | tratamento | disponivel | 2026-10-15 12:00:00 | Ana
+Q4 | nome | data_adocao
+     Mel | 2026-10-10
+Q5 | status | quantidade
+     adotado | 1
+     disponivel | 1
+     lar_temporario | 1
+     tratamento | 1
+
+VERIFICAÇÕES DA MANIPULAÇÃO
+OK | UPDATE: Paçoca adotado em 15/10/2026
+OK | INSERT: histórico passou de 5 para 6 registros
+OK | DELETE: fotos de 2 para 1; os 4 cães foram preservados
+OK | ROLLBACK: situação e histórico restaurados
+OK | UNIQUE: um perfil de protetor por usuário
+OK | FOREIGN KEY: responsável inexistente rejeitado
+OK | NOT NULL: nome nulo rejeitado
+OK | PRIMARY KEY: identificador duplicado rejeitado
+OK | FOREIGN KEY: protetor com cães não pode ser removido por SQL direto
+OK | Nenhuma violação referencial
+OK | Integridade SQLite: ok
+
+CONSULTAS APÓS A MANIPULAÇÃO
+Q1 | id | nome | status | protetor | localizacao
+     3 | Rex | lar_temporario | Bruno | Taguatinga
+Q2 | protetor | caes_nao_adotados
+     Ana | 1
+     Bruno | 1
+Q3 | nome | status_anterior | status_novo | criado_em | autor
+     Paçoca |  | tratamento | 2026-10-14 12:00:00 | Ana
+     Paçoca | tratamento | disponivel | 2026-10-15 12:00:00 | Ana
+     Paçoca | disponivel | adotado | 2026-10-15 15:00:00 | Ana
+Q4 | nome | data_adocao
+     Paçoca | 2026-10-15
+     Mel | 2026-10-10
+Q5 | status | quantidade
+     adotado | 2
+     lar_temporario | 1
+     tratamento | 1
+
+RESULTADO: roteiro concluído com sucesso.
