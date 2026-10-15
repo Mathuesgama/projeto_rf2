@@ -122,6 +122,8 @@ python banco_dados/demonstrar.py
 
 O comando não modifica o banco da aplicação. Consulte [os resultados da execução](banco_dados/evidencias_sql.txt) e o [modelo relacional](banco_dados/modelo.png).
 
+Relatório do módulo: [PDF para entrega](Relatorio_Modulo_3_Banco_de_Dados_e_Controle_de_Versao_UFMS.pdf) e [versão editável em Word](Relatorio_Modulo_3_Banco_de_Dados_e_Controle_de_Versao_UFMS.docx).
+
 ## ☁️ Publicação (produção)
 
 Variáveis de ambiente suportadas: `DJANGO_SECRET_KEY`, `DJANGO_DEBUG=0`, `DJANGO_ALLOWED_HOSTS`, `DJANGO_CSRF_TRUSTED_ORIGINS`. Execute `python manage.py collectstatic` e sirva `media/` e `staticfiles/` pelo servidor web (ex.: Nginx) ou serviço de armazenamento.
